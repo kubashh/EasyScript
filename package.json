@@ -1,0 +1,32 @@
+{
+  "name": "@kubashh/easyscript",
+  "version": "0.1.0",
+  "author": "kubashh",
+  "description": "EasyScript easier JavaScript",
+  "repository": "https://github.com/kubashh/EasyScript",
+  "license": "MIT",
+  "scripts": {
+    "dev": "clear && bun scripts/dev.ts",
+    "build": "bun scripts/build.ts",
+    "pub": "bun scripts/publish.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "easyscript": "dist/easyscript.js"
+  },
+  "keywords": [
+    "easyscript",
+    "typescript",
+    "react",
+    "bun"
+  ],
+  "prettier": {
+    "semi": false,
+    "printWidth": 108
+  }
+}

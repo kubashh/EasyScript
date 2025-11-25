@@ -1,0 +1,15 @@
+{
+  "scripts": {},
+  "deps": {},
+  "publish": {
+    "name": "example",
+    "version": "0.0.1",
+    "author": "nick",
+    "description": "description",
+    "repository": "repo",
+    "license": "MIT",
+    "files": [],
+    "keywords": [],
+    "bin": {}
+  }
+}

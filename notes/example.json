@@ -1,0 +1,95 @@
+{
+  "type": "Program",
+  "sourceType": "script",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "a"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "b"
+        }
+      ],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "===",
+              "left": {
+                "type": "Identifier",
+                "name": "b"
+              },
+              "right": {
+                "type": "TemplateLiteral",
+                "quasis": [
+                  {
+                    "type": "TemplateElement",
+                    "value": { "raw": "foo", "cooked": "foo" },
+                    "tail": true
+                  }
+                ],
+                "expressions": []
+              }
+            },
+            "consequent": {
+              "type": "ExpressionStatement",
+              "expression": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "object": {
+                    "type": "Identifier",
+                    "name": "console"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "log"
+                  },
+                  "computed": false,
+                  "optional": false
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "b"
+                  }
+                ],
+                "optional": false
+              }
+            },
+            "alternate": null
+          }
+        ]
+      },
+      "generator": false,
+      "async": false
+    },
+    {
+      "type": "VariableDeclaration",
+      "kind": "const",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": { "type": "Identifier", "name": "c" },
+          "init": { "type": "Literal", "value": 10, "raw": "10" }
+        }
+      ]
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": { "type": "Identifier", "name": "b" },
+        "arguments": [{ "type": "Identifier", "name": "c" }],
+        "optional": false
+      }
+    }
+  ]
+}
