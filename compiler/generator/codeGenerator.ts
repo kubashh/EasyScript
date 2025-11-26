@@ -29,6 +29,7 @@ export class CodeGenerator {
   static generate(tokens: Token[]): string {
     let code = ""
     let prev: Token | null = null
+    const prevStack = []
 
     const forLoop = {
       inLoop: 0,
@@ -45,13 +46,17 @@ export class CodeGenerator {
           code += " "
         }
 
-        // Jeśli poprzedni token kończy się ] lub ) a następny zaczyna się od Identifier / Keyword / Number → dodaj średnik
-        if ((prev.value.endsWith("]") || prev.value.endsWith(")")) && semiTokenType.includes(token.type)) {
+        // Jeśli poprzedni token kończy się } ] lub ) a następny zaczyna się od Identifier / Keyword / Number → dodaj średnik
+        if (
+          ((prev.value.endsWith("}") || prev.value.endsWith("]") || prev.value.endsWith(")")) &&
+            semiTokenType.includes(token.type)) ||
+          (prev.value === `"` && [TokenType.Keyword].includes(token.type))
+        ) {
           code += ";"
         }
       }
 
-      if (token.type === TokenType.Identifier && token.value === `for`) {
+      if (token.type === TokenType.Keyword && token.value === `for`) {
         forLoop.inLoop = 2
       }
       if (forLoop.inLoop) {
@@ -68,6 +73,7 @@ export class CodeGenerator {
       } else code += CodeGenerator.changeTokenValue(token)
 
       prev = token
+      prevStack.push(token)
     }
 
     return code
@@ -99,11 +105,10 @@ function handleForLoop(tokens: Token[]) {
   }
 
   if (tokens.find((t) => t.type === TokenType.Punctuator && t.value === `..`)) {
-    return `for(let ${idents[0]} = ${start}; ${idents[0]} < ${end}; ${idents[0]}++)`
+    return `for(let ${idents[0]} = ${start}; ${idents[0]} < ${end}; ${idents[0]} += 1)`
   }
 
-  console.log(idents)
   if (idents[0] === `_`) return `for(const ${idents[1]} in ${start})`
-  else if (!idents[1]) return `for(const ${idents[0]} of ${start})`
+  else if (!idents[1]) return `for(const ${idents[0]} of Object.values(${start}))`
   return `for(const [${idents[1]}, ${idents[0]}] of Object.entries(${start}))`
 }

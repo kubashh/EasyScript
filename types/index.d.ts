@@ -1,9 +1,10 @@
 type Obj<T> = Record<string, T>
 
 type EasyScriptConfig = {
+  publish: ESCPublish | false
   scripts: Obj<T>
   deps: Obj<T>
-  publish: ESCPublish | false
+  [string]: string
 }
 
 type ESCPublish = {

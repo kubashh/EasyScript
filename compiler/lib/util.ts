@@ -1,8 +1,7 @@
+import { child_process, FileSync } from "./consts"
 import { Err } from "../../core/preload"
 
-const exampleConf = {
-  scripts: {},
-  deps: {},
+const exampleConf: EasyScriptConfig = {
   publish: {
     name: "example",
     version: "0.0.1",
@@ -14,19 +13,24 @@ const exampleConf = {
     keywords: [],
     bin: {},
   },
+  scripts: {},
+  deps: {},
 }
 
-export async function setPack() {
-  const { publish, ...config } = await getConfig()
-  const packageJson = config
+export function setPack() {
+  const { publish, deps, ...config } = getConfig()
+  const packageJson: Obj<any> = config
+  packageJson.dependencies = deps
 
   if (publish) Object.assign(packageJson, publish)
 
-  await Bun.write(`dist/package.json`, JSON.stringify(packageJson))
+  FileSync(`dist/package.json`).write(JSON.stringify(packageJson))
 }
 
-export async function getConfig() {
-  const config = await Bun.file(`pack.json`).json()
+function getConfig() {
+  const file = FileSync(`pack.json`)
+  if (!file.exists()) return exampleConf
+  const config = file.json()
 
   // Validate
   validateConfig(config, exampleConf)
@@ -50,4 +54,34 @@ function validateConfig(v: any, e: any) {
         delete v[key]
       }
   }
+}
+
+const runtimes = [`bun`, `node`, `deno`, `npm`, `yarn`, `pnpm`]
+let validRuntime: string | null = null
+
+function getValidRuntime(runtimes: string[]) {
+  for (const rt of runtimes) {
+    try {
+      const a = child_process.spawnSync(rt)
+
+      if (a.status === 0) return rt
+    } catch {}
+  }
+
+  Err(`No valid runtime, runtimes:`, runtimes)
+}
+
+export function spawnSync({ runtime, cmd, ...options }: spawnSyncOptions) {
+  let firstArg = ``
+  if (runtime) {
+    if (typeof runtime !== `boolean`) validRuntime = getValidRuntime(runtime)
+    else if (!validRuntime) validRuntime = getValidRuntime(runtimes)
+    firstArg = validRuntime
+  } else {
+    firstArg = cmd[0]
+    cmd = cmd.slice(1)
+  }
+
+  if (cmd.length > 0) child_process.spawnSync(firstArg, cmd, options)
+  else child_process.spawnSync(firstArg, options)
 }

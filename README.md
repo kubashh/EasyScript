@@ -56,11 +56,11 @@ for(0..10) |i| {
 
 ## Rodemap (TODO)
 
-### 0.1.1 array/string negative index
+### 0.2.1 array/string negative index
 
-### 0.1.2 array/string slice
+### 0.2.2 array/string slice
 
-#### 0.2.0 Inequalities
+#### 0.3.0 Inequalities
 
 ```ts main.ts
 6 < 7 < 5 // true (bad behaviour), because (6 < 7 < 5) = (true < 5) = (1 < 5) = true
@@ -70,10 +70,14 @@ for(0..10) |i| {
 6 < 7 < 5 // false (bad behaviour), because (6 < 7 < 5) = (6 < 7) && (7 < 5) = true && false = false
 ```
 
-### 0.3.0 Code format
+### 0.4.0 Code format
 
-### 0.4.0 Bundle to 1 js file
+### 0.5.0 Bundle to 1 js file
 
-### 0.5.0 VSCode extenction
+### 0.6.0 Cache
 
-### Better compiler
+### 0.7.0 VSCode extenction
+
+### 0.8.0 Rewrite to ES
+
+### 1.0.0 Better compiler

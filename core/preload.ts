@@ -1,13 +1,5 @@
 // @ts-nocheck
 
-function print(...args: any[]) {
-  console.log(...args)
-}
-
-function err(...args: any[]) {
-  console.error(...args)
-}
-
 export function Err(...args: any[]): never {
   console.error(...args)
   process.exit()
