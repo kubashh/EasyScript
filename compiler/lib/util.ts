@@ -62,7 +62,9 @@ let validRuntime: string | null = null
 function getValidRuntime(runtimes: string[]) {
   for (const rt of runtimes) {
     try {
-      const a = child_process.spawnSync(rt)
+      const a = child_process.spawnSync(rt, {
+        timeout: 5,
+      })
 
       if (a.status === 0) return rt
     } catch {}
@@ -84,4 +86,9 @@ export function spawnSync({ runtime, cmd, ...options }: spawnSyncOptions) {
 
   if (cmd.length > 0) child_process.spawnSync(firstArg, cmd, options)
   else child_process.spawnSync(firstArg, options)
+}
+
+const displayInfo = !process.argv.includes(`-i`)
+export function info(...args: any[]) {
+  if (displayInfo) console.log(`[EasyScript]`, ...args)
 }

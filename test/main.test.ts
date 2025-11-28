@@ -1,5 +1,7 @@
 import { Compiler } from "../compiler/compiler"
 
+await Bun.$`clear`
+
 const arr = [
   ` import fs from "fs"`, // import
   ` var a = 10`, // var
@@ -13,10 +15,10 @@ const arr = [
     print(10)`, // comment
 ]
 
-for (const e of arr) {
-  await Compiler.file({
-    path: `./dist.ts`,
-    outpath: `./dist.ts`,
-    text: e,
+for (const i in arr) {
+  Compiler.file({
+    path: `test/t${i}.ts`,
+    outpath: `test/t${i}.ts`,
+    text: arr[i],
   })
 }

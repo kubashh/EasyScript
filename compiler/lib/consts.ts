@@ -43,12 +43,12 @@ class CFileSync {
 export enum TokenType {
   Identifier = "Identifier",
   Number = "Number",
-  String = "String",
-  Template = "Template",
-  RegExpLiteral = "RegExpLiteral",
+  String = "String", // to implement
+  Template = "Template", // to implement
+  RegExpLiteral = "RegExpLiteral", // to implement
   Punctuator = "Punctuator",
   Keyword = "Keyword",
-  Comment = "Comment",
+  Comment = "Comment", // to implement
   EOF = "EOF",
 
   JSXText = "JSXText",
@@ -63,50 +63,104 @@ export enum TokenType {
 }
 
 export const esKeywords = new Set([
-  "fn", // function
-  "return", // return
-  "if", // if
-  "else",
-  "switch",
-  "for", // loops
-  "while",
-  "do",
   "const", // declaration
   "var",
   "class",
+  "fn",
+  "this", // class keywords
+  "super",
+  "return", // return
+  "continue",
+  "break",
+  "if", // if
+  "else",
+  "switch",
+  "case", // to delete
+  "for", // loops
+  "while",
+  "do",
   "extends", // class
   "new",
   "import", // import / export
   "export",
-  "from",
+  "from", // to delete
+  "async", // async / await // to delete
+  "await", // to delete
+  "in", // compere
+  "instanceof",
+  "typeof",
+  "throw", // errors
+  "try",
 ])
 
-export const punctuators = [
-  "?.",
-  "..",
-  "...",
-  "==",
-  "!=",
-  "<=",
-  ">=",
-  "=",
-  "+",
-  "-",
-  "*",
-  "/",
-  "%",
-  "<",
-  ">",
-  "(",
-  ")",
-  "{",
-  "}",
-  "[",
-  "]",
-  "|",
-  ".",
-  ";",
-  ":",
-  ",",
-  "?",
-].sort((a, b) => b.length - a.length)
+export const jsKeywords = new Set(
+  [
+    "await",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "let",
+    "new",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+  ].filter((word) => !esKeywords.has(word))
+)
+
+export const punctuators = new Set(
+  [
+    "...",
+    "..",
+    "?.",
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "=",
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
+    "<",
+    ">",
+    "(",
+    ")",
+    "{",
+    "}",
+    "[",
+    "]",
+    "|",
+    ".",
+    ";",
+    ":",
+    ",",
+    "?",
+  ].sort((a, b) => b.length - a.length)
+)

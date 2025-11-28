@@ -1,63 +1,97 @@
 import { FileSync, fs, path } from "./lib/consts"
-import { spawnSync } from "./lib/util"
+import { info, spawnSync } from "./lib/util"
 import { Formatter } from "./formatter/formatter"
 import { Err } from "../core/preload"
 import { CodeGenerator } from "./generator/codeGenerator"
-import { Lexer } from "./lexer/lexer"
+import { Tokenizer } from "./tokenizer/tokenizer"
 
 export class Compiler {
   static fmt: boolean
+  static tokTime: number
+  static genTime: number
+  static fmtTime: number
 
-  static compile(path: string) {
-    const ignore = [`pack.json`, `dist/package.json`, `easyscript.js`]
+  static compile(mainPath: string) {
+    Compiler.tokTime = 0
+    Compiler.genTime = 0
+    Compiler.fmtTime = 0
 
     Compiler.fmt = process.argv.includes(`-f`)
     const run = process.argv.includes(`-r`)
 
-    const prevPaths = [] as string[]
-    for (const path of scanFiles(`.`)) {
-      if (ignore.includes(path) || !path.includes(`.`)) continue
-      const outpath = getOutpath(path)
-      if (prevPaths.includes(path)) Err(`Same names of files at ${path}!`)
-      prevPaths.push(outpath)
+    for (const path of Compiler.getPaths()) {
       if (path.endsWith(`.es`)) {
         Compiler.file({
           path: path,
-          outpath,
+          outpath: getOutpath(path),
           text: FileSync(path).text(),
         })
       } else {
-        fs.cpSync(path, outpath)
+        fs.cpSync(path, getOutpath(path))
       }
     }
 
+    info(`Tokenize - ${Compiler.tokTime.toFixed(0)}ms`)
+    info(`Code generation - ${Compiler.genTime.toFixed(0)}ms`)
+    info(`Compile - ${(Compiler.tokTime + Compiler.genTime).toFixed(0)}ms`)
+    if (Compiler.fmt) info(`Formatting - ${Compiler.fmtTime.toFixed(0)}ms`)
+
     if (run) {
-      console.log(`Running...`)
+      const start = performance.now()
+      info(`Running...`)
 
       spawnSync({
-        cmd: [getOutpath(path).split(`/`).slice(1).join(`/`)],
+        cmd: [getOutpath(mainPath).split(`/`).slice(1).join(`/`)],
         runtime: true,
         cwd: `dist`,
         stdio: `inherit`,
       })
+
+      const timePassed = performance.now() - start
+      info(`Running JS - ${timePassed.toFixed(0)}ms`)
     }
   }
 
-  static file(file: ESFile) {
-    const tokens = Lexer.lex(file.text)
-    const code = CodeGenerator.generate(tokens)
+  static getPaths() {
+    const ignorePaths = [`pack.json`, `dist/package.json`, `easyscript.js`]
+    const paths: string[] = []
+    const outPaths: string[] = []
 
-    FileSync(`test.json`).write(JSON.stringify(tokens))
-
-    FileSync(file.outpath).write(code)
-
-    if (Compiler.fmt) {
-      console.log(`Formatting...`)
-      const fmt = Formatter.format(tokens)
-      FileSync(file.path).write(fmt)
-      // console.log(file.text)
-      // console.log(code)
+    for (const path of scanFiles(`.`)) {
+      if (ignorePaths.includes(path) || !path.includes(`.`)) continue
+      const outpath = getOutpath(path)
+      if (outPaths.includes(outpath)) Err(`Same names of files at ${path}! File names must me diffrent`)
+      outPaths.push(outpath)
+      paths.push(path)
     }
+
+    return paths
+  }
+
+  static file(file: ESFile) {
+    const { out, formatted } = Compiler.compileCode(file.text)
+
+    FileSync(file.outpath).write(out)
+
+    if (formatted) FileSync(file.path).write(formatted)
+  }
+
+  // For future browser ES compiling (no fs)
+  static compileCode(text: string) {
+    let start = performance.now()
+    const tokens = Tokenizer.tokenize(text)
+    Compiler.tokTime += performance.now() - start
+
+    start = performance.now()
+    const out = CodeGenerator.generate(tokens)
+    Compiler.genTime += performance.now() - start
+
+    start = performance.now()
+    const formatted = Compiler.fmt ? Formatter.format(tokens) : null
+    // console.log(formatted)
+    Compiler.fmtTime += performance.now() - start
+
+    return { out, formatted }
   }
 }
 
@@ -71,8 +105,10 @@ function getOutpath(path: string) {
   return outpath
 }
 
+const excludeDirs = [`node_modules`, `package.json`]
 // Function to recursively scan files in a directory
 function scanFiles(dirPath: string) {
+  if (excludeDirs.includes(dirPath)) return []
   if (!fs.existsSync(dirPath)) {
     Err(`Directory '${dirPath}' does not exist.`)
   }

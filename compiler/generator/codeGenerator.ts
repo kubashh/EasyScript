@@ -24,63 +24,88 @@ const change: any = {
 }
 
 export class CodeGenerator {
-  static i = 0
+  i = 0
+  tokens
 
-  static generate(tokens: Token[]): string {
-    let code = ""
-    let prev: Token | null = null
-    const prevStack = []
-
-    const forLoop = {
-      inLoop: 0,
-      buf: [] as Token[],
+  static generate(tokens: Token[]) {
+    const cgen = new CodeGenerator(tokens)
+    const buf = []
+    let code
+    while ((code = cgen.next())) {
+      buf.push(code)
     }
-
-    for (CodeGenerator.i = 0; CodeGenerator.i < tokens.length; CodeGenerator.i++) {
-      const token = tokens[CodeGenerator.i]
-      if (token.type === TokenType.EOF) continue
-
-      if (prev) {
-        // Jeśli poprzedni i obecny token wymagają separacji → dodaj spację
-        if (prevTypes.includes(prev.type) && currTypes.includes(token.type)) {
-          code += " "
-        }
-
-        // Jeśli poprzedni token kończy się } ] lub ) a następny zaczyna się od Identifier / Keyword / Number → dodaj średnik
-        if (
-          ((prev.value.endsWith("}") || prev.value.endsWith("]") || prev.value.endsWith(")")) &&
-            semiTokenType.includes(token.type)) ||
-          (prev.value === `"` && [TokenType.Keyword].includes(token.type))
-        ) {
-          code += ";"
-        }
-      }
-
-      if (token.type === TokenType.Keyword && token.value === `for`) {
-        forLoop.inLoop = 2
-      }
-      if (forLoop.inLoop) {
-        forLoop.buf.push(token)
-        if (token.type === TokenType.Punctuator) {
-          if (token.value === `|`) {
-            forLoop.inLoop--
-            if (!forLoop.inLoop) {
-              code += handleForLoop(forLoop.buf)
-              forLoop.buf = []
-            }
-          }
-        }
-      } else code += CodeGenerator.changeTokenValue(token)
-
-      prev = token
-      prevStack.push(token)
-    }
-
-    return code
+    return buf.join(``)
   }
 
-  static changeTokenValue(token: Token) {
-    return change[token.type]?.[token.value] || token.value
+  changeTokenValue() {
+    // length
+    if (this.i > 0 && this.i + 1 < this.tokens.length)
+      if (this.peek(-1).value === `.` && this.peek().value === `len` && this.peek(1).value !== `.`) {
+        return `length`
+      }
+
+    // Template
+    if (this.peek().type === TokenType.Template) {
+      return `\`${this.peek().value.slice(1, -1)}\``
+    }
+
+    // from arr
+    return change[this.peek().type]?.[this.peek().value] || this.peek().value
+  }
+
+  constructor(tokens: Token[]) {
+    this.tokens = tokens
+  }
+
+  next(): string | null {
+    if (this.i >= this.tokens.length) return null
+
+    // Comment
+    if (this.peek().type === TokenType.Comment) {
+      this.i++
+      return this.next()
+    }
+
+    let out = ``
+
+    if (this.i > 0) {
+      const prev = this.peek(-1)
+
+      // Jeśli poprzedni i obecny token wymagają separacji => dodaj spację
+      if (prevTypes.includes(prev.type) && currTypes.includes(this.peek().type)) {
+        out = " "
+      }
+
+      // Jeśli poprzedni token kończy się } ] ) lub " a następny zaczyna się od Identifier / Keyword / Number => dodaj średnik
+      if (
+        (["}", "]", ")", `"`].includes(prev.value.at(-1)!) && semiTokenType.includes(this.peek().type)) ||
+        (prev.value === `"` && [TokenType.Keyword].includes(this.peek().type))
+      ) {
+        out = ";"
+      }
+    }
+
+    // For loop
+    if (this.peek().type === TokenType.Keyword && this.peek().value === `for`) {
+      const buf = []
+
+      for (let inLoop = 0; inLoop < 2; this.i++) {
+        buf.push(this.peek())
+        if (this.peek().type === TokenType.Punctuator && this.peek().value === `|`) {
+          inLoop++
+        }
+      }
+
+      return out + handleForLoop(buf)
+    }
+
+    out += this.changeTokenValue()
+    this.i++
+    return out
+  }
+
+  peek(n = 0) {
+    return this.tokens[this.i + n]
   }
 }
 

@@ -3,48 +3,59 @@ import { TokenType } from "../lib/consts"
 const IND = "  "
 
 export class Formatter {
+  i = 0
+  indent = 0
+  tokens
+
   static format(tokens: Token[]): string {
+    const fmt = new Formatter(tokens)
+    const buf = []
+    let code
+    while ((code = fmt.next())) {
+      buf.push(code)
+    }
+    buf.push("\n")
+    return buf.join(``)
+  }
+
+  constructor(tokens: Token[]) {
+    this.tokens = tokens
+  }
+
+  next() {
     let out = ""
-    let prev: Token | null = null
-    let indent = 0
 
-    for (const token of tokens) {
-      if (token.type === TokenType.EOF) break
+    if (this.peek().type === TokenType.EOF) return null
 
-      // Zmniejszamy wcięcie po "}"
-      if (token.value === "}") indent--
+    // Zmniejszamy wcięcie po "}"
+    if (this.peek().value === "}") this.indent--
 
+    if (this.i > 0) {
       // nowa linia przed pewnymi tokenami
-      if (prev && isLineBreakPoint(prev)) {
-        out += "\n" + IND.repeat(indent)
-      }
-
-      // średnik w sytuacjach wymagających separacji (ASI)
-      if (
-        prev &&
-        (prev.value.endsWith("]") || prev.value.endsWith(")") || prev.type === TokenType.String) &&
-        tokenNeedsSemicolonBefore(token)
-      ) {
-        out += ";"
-        out += "\n" + IND.repeat(indent)
+      if (isLineBreakPoint(this.peek(-1), this.peek())) {
+        out += "\n" + IND.repeat(this.indent)
       }
 
       // wstaw spację jeśli potrzeba
-      if (prev && needSpace(prev, token)) {
+      if (needSpace(this.peek(-1), this.peek())) {
         out += " "
       }
-
-      out += token.value
-
-      // zwiększamy wcięcie po "{"
-      if (token.value === "{") {
-        indent++
-      }
-
-      prev = token
     }
 
-    return out.trimEnd() + "\n"
+    out += this.peek().value
+
+    // zwiększamy wcięcie po "{"
+    if (this.peek().value === "{") {
+      this.indent++
+    }
+
+    this.i++
+
+    return out.trimEnd()
+  }
+
+  peek(n = 0) {
+    return this.tokens[this.i + n]
   }
 }
 
@@ -67,8 +78,22 @@ function needSpace(a: Token, b: Token) {
   return false
 }
 
-const isLineBreakPoint = (t: Token) =>
-  t.value === "{" || t.value === "}" || t.value === ";" || t.type === TokenType.JSXFragmentEnd
+function isLineBreakPoint(prev: Token, token: Token) {
+  if (
+    ["{", "}", ";"].includes(prev.value) ||
+    [TokenType.JSXFragmentEnd, TokenType.Comment].includes(prev.type)
+  )
+    return true
+
+  // średnik w sytuacjach wymagających separacji (ASI)
+  if (
+    (["]", ")", `"`].includes(prev.value.at(-1)!) || prev.type === TokenType.String) &&
+    tokenNeedsSemicolonBefore(token)
+  )
+    return true
+
+  return false
+}
 
 const tokenNeedsSemicolonBefore = (t: Token) =>
   t.type === TokenType.Identifier ||

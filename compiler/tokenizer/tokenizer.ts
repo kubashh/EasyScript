@@ -1,8 +1,25 @@
-import { punctuators, TokenType } from "../lib/consts"
+import { esKeywords, punctuators, TokenType } from "../lib/consts"
 
 export class Tokenizer {
   private code: string
   private i: number = 0
+
+  static tokenize(code: string) {
+    const tokenizer = new Tokenizer(code)
+    const tokens: Token[] = []
+    let tok: Token | null
+
+    while ((tok = tokenizer.next()) && tok.type !== TokenType.EOF) {
+      tokens.push(tok)
+    }
+    tokens.push({
+      type: TokenType.EOF,
+      value: "",
+      start: Number(tokenizer.peek()),
+      end: Number(tokenizer.peek()),
+    })
+    return tokens
+  }
 
   constructor(code: string) {
     this.code = code
@@ -29,11 +46,15 @@ export class Tokenizer {
       return this.next()
     }
 
-    // --- comments: pomijamy ---
+    // --- comments ---
     if (this.match("//")) {
-      this.i += 2
-      while (!this.eof() && this.peek() !== "\n") this.i++
-      return this.next() // zamiast zwracać token, pomijamy
+      const buf = []
+      const start = this.i
+      while (!this.eof() && this.peek() !== "\n") {
+        buf.push(this.peek())
+        this.i++
+      }
+      return { type: TokenType.Comment, value: buf.join(``), start, end: this.i }
     }
 
     // --- numbers ---
@@ -48,12 +69,35 @@ export class Tokenizer {
       return { type: TokenType.Number, value: s, start, end: this.i }
     }
 
+    // Strings
+    if (this.match(`"`)) {
+      const start = this.i
+      let ind = this.i + 1
+      while (this.code[ind] !== `"` || this.code[ind - 1] === `\\`) {
+        ind = this.code.indexOf(`"`, ind + 1)
+      }
+      ind++
+      const slice = this.code.slice(start, ind)
+      this.i = ind
+      return {
+        type: slice.includes(`\n`) ? TokenType.Template : TokenType.String,
+        value: slice,
+        start,
+        end: this.i,
+      }
+    }
+
     // --- identifiers/keywords ---
     if (/[A-Za-z_$]/.test(ch)) {
       const start = this.i
       let s = ""
       while (/[A-Za-z0-9_$]/.test(this.peek())) s += this.code[this.i++]
-      return { type: TokenType.Identifier, value: s, start, end: this.i }
+      return {
+        type: esKeywords.has(s) ? TokenType.Keyword : TokenType.Identifier,
+        value: s,
+        start,
+        end: this.i,
+      }
     }
 
     // --- punctuators ---

@@ -1,6 +1,13 @@
-// import {hello} from "./t";
+// import {hello} from "./t"
 
+const t = [[false]]
 const arr = [1, 2, 3, 4]
+console.log(arr.len)
+
+const a = "f
+f"
+
+print(a)
 
 for(arr) |e, i| {
   print(i, e)
