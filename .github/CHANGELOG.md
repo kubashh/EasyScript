@@ -1,4 +1,4 @@
-# EasyScript (@kubashh/easyscript)
+# EasyScript
 
 ## TODO (Rodemap)
 
@@ -19,13 +19,13 @@
 JavaScript
 
 ```ts
-6 < 7 < 5 // true (bad behaviour), because (6 < 7 < 5) = (true < 5) = (1 < 5) = true
+6 < 7 < 5; // true (bad behaviour), because (6 < 7 < 5) = (true < 5) = (1 < 5) = true
 ```
 
 EasyScript
 
 ```es
-6 < 7 < 5 // false (good behaviour), because (6 < 7 < 5) = (6 < 7) && (7 < 5) = true && false = false
+6 < 7 < 5; // false (good behaviour), because (6 < 7 < 5) = (6 < 7) && (7 < 5) = true && false = false
 ```
 
 ## Small
