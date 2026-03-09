@@ -90,9 +90,9 @@ Used in variable/function parameters:
 ## Example: Categorizing a small JS snippet
 
 ```js
-const a = 1 + 2
+const a = 1 + 2;
 function foo(x) {
-  return x * 2
+  return x * 2;
 }
 ```
 

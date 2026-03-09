@@ -15,15 +15,15 @@
 #### Strictness
 
 ```ts main.ts
-10 == `10` // true, (bad behaviour), because first implementation of JS
-false != true // true
-10 === `10` // false
-false !== true // true
+10 == `10`; // true, (bad behaviour), because first implementation of JS
+false != true; // true
+10 === `10`; // false
+false !== true; // true
 ```
 
 ```es main.es
-10 == `10` // false
-false != true // true
+10 == `10`; // false
+false != true; // true
 ```
 
 ### `for` loop

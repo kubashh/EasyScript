@@ -1,24 +1,24 @@
 type ESFile = {
-  path: string
-  outpath: string
-  text: string
-}
+  path: string;
+  outpath: string;
+  text: string;
+};
 
 type Token = {
-  type: TokenType
-  value: string
-  start: number
-  end: number
-}
+  type: TokenType;
+  value: string;
+  start: number;
+  end: number;
+};
 
 type spawnSyncOptions = {
-  cmd: string[]
-  cwd?: string
-  runtime?: true | string[]
-  stdio?: child_process.StdioOptions
-  timeout?: number
-  killSignal?: number | Signals | undefined
-}
+  cmd: string[];
+  cwd?: string;
+  runtime?: true | string[];
+  stdio?: child_process.StdioOptions;
+  timeout?: number;
+  killSignal?: number | Signals | undefined;
+};
 
 type Signals =
   | "SIGABRT"
@@ -57,4 +57,4 @@ type Signals =
   | "SIGXFSZ"
   | "SIGBREAK"
   | "SIGLOST"
-  | "SIGINFO"
+  | "SIGINFO";

@@ -1,5 +1,5 @@
-import t from "./t.json"
+import t from "./t.json";
 
 export function hello() {
-  console.log(`jjj`, t)
+  console.log(`jjj`, t);
 }

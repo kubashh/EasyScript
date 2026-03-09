@@ -1,4 +1,4 @@
-const isDev = process.argv.includes(`--dev`)
+const isDev = process.argv.includes(`--dev`);
 
 await Bun.build({
   entrypoints: [`core/easyscript.ts`],
@@ -6,4 +6,4 @@ await Bun.build({
   outdir: isDev ? `workspace` : `dist`,
   target: `bun`,
   // external: [],
-})
+});

@@ -1,42 +1,42 @@
-import fs from "fs"
-import path from "path"
-import child_process from "child_process"
+import fs from "fs";
+import path from "path";
+import child_process from "child_process";
 
-export { fs, path, child_process }
+export { fs, path, child_process };
 
 export function FileSync(path: string) {
-  return new CFileSync(path)
+  return new CFileSync(path);
 }
 
 class CFileSync {
-  path
+  path;
 
   constructor(path: string) {
-    this.path = path
+    this.path = path;
   }
 
   text() {
-    return String(fs.readFileSync(this.path))
+    return String(fs.readFileSync(this.path));
   }
 
   json() {
-    return JSON.parse(this.text())
+    return JSON.parse(this.text());
   }
 
   write(text: string) {
-    const arr = this.path.split(`/`)
+    const arr = this.path.split(`/`);
     for (let i = 0; i < arr.length - 1; i++) {
-      if (!fs.existsSync(arr[i])) fs.mkdirSync(arr[i])
+      if (!fs.existsSync(arr[i])) fs.mkdirSync(arr[i]);
     }
-    fs.writeFileSync(this.path, text)
+    fs.writeFileSync(this.path, text);
   }
 
   exists() {
-    return fs.existsSync(this.path)
+    return fs.existsSync(this.path);
   }
 
   delete() {
-    fs.unlinkSync(this.path)
+    fs.unlinkSync(this.path);
   }
 }
 
@@ -91,7 +91,7 @@ export const esKeywords = new Set([
   "typeof",
   "throw", // errors
   "try",
-])
+]);
 
 export const jsKeywords = new Set(
   [
@@ -130,8 +130,8 @@ export const jsKeywords = new Set(
     "while",
     "with",
     "yield",
-  ].filter((word) => !esKeywords.has(word))
-)
+  ].filter((word) => !esKeywords.has(word)),
+);
 
 export const punctuators = new Set(
   [
@@ -162,5 +162,5 @@ export const punctuators = new Set(
     ":",
     ",",
     "?",
-  ].sort((a, b) => b.length - a.length)
-)
+  ].sort((a, b) => b.length - a.length),
+);

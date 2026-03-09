@@ -1,6 +1,6 @@
-import { Compiler } from "../compiler/compiler"
+import { Compiler } from "../compiler/compiler";
 
-await Bun.$`clear`
+await Bun.$`clear`;
 
 const arr = [
   ` import fs from "fs"`, // import
@@ -13,12 +13,12 @@ const arr = [
     for(arr) |e, index| print(e, index)`, // for(arr)
   ` //const arr = [1, 2, 3, 4]
     print(10)`, // comment
-]
+];
 
 for (const i in arr) {
   Compiler.file({
     path: `test/t${i}.ts`,
     outpath: `test/t${i}.ts`,
     text: arr[i],
-  })
+  });
 }
