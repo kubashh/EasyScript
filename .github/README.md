@@ -60,3 +60,33 @@ for(0..10) |i| {
 
 `arr.len` => `arr.length`
 `str.len` => `str.length`
+
+# TODO
+
+- More Strict
+- 100% typed code
+
+## undefined to null
+
+no `undefined`
+types: null, bool (not boolean), number, biging, string, array, object
+
+```ts
+function someApi() {
+  if (Math.random() < 0.4) return 10;
+  return undefined;
+}
+
+let myVar = someApi();
+```
+
+convert into
+
+```es
+function someApi() {
+  if (Math.random() < 0.4) return 10;
+  return undefined;
+}
+
+var myVar = someApi() || null;
+```
